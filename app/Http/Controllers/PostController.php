@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SendMail;
+use App\Exports\PostsExport;
 use App\Post;
+use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PostController extends Controller
 {
@@ -27,9 +31,13 @@ class PostController extends Controller
 
     public function index()
     {
+        event(new SendMail(Auth::user()));
         $data = [
             'posts' => Post::all()
         ];
+        $year = Carbon::now()->addSeconds(33);
+        $date = Carbon::now()->diffForHumans($year);
+
         Log::info('User watched the index page');
         return view('posts.index', $data);
     }
@@ -58,6 +66,7 @@ class PostController extends Controller
         return view('posts.edit', $data);
     }
 
+
     public function update($post_id, Request $request)
     {
 //        Cookie::queue('lang', 'ru');
@@ -80,8 +89,12 @@ class PostController extends Controller
 
     public function destroy($post_id)
     {
-        Post::destroy($post_id);
+        $result = $this->destroyAction($post_id);
         return redirect('/posts');
+    }
+    public function destroyAction($post_id)
+    {
+        return Post::destroy($post_id);
     }
 
 }

@@ -15,3 +15,11 @@
     <input type="file" name="image"> <br>
     <input type="submit">
 </form>
+
+{{Form::open(['url' => '/posts/update/'.$post->id, 'method' => 'post'])}}
+
+{{Form::token()}}
+{{Form::text('title', $post->title)}}
+{{Form::text('content', $post->content)}}
+{{Form::text('user_id', $post->user_id)}}
+{{Form::submit()}}
